@@ -1,0 +1,9 @@
+*.sdf
+*.opensdf
+Project1/Debug/
+*.filters
+*.user
+Project1/libs/
+Project1/obj/
+Project1/so/
+*.suo
