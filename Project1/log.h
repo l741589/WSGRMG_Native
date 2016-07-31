@@ -8,6 +8,11 @@
 #ifndef LOGR
 #define LOGR(...) logRemote(__FILE__,__LINE__,__VA_ARGS__)
 #endif
+
+#ifndef LOGER
+#define LOGER(...) {LOGE(__VA_ARGS__);LOGR(__VA_ARGS__);}
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

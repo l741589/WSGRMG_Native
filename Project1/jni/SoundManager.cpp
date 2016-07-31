@@ -51,13 +51,18 @@ bool SoundManager::play(std::string eventName,std::string eventGroup,bool force)
 	//if (lastStep>=0&&lastStep == stepCounter) return true;
 	LOGE("try play:%s", eventName.c_str());
 	if (eventGroup == "") eventGroup = eventName;
-	if (map.find(eventName) == map.end()) return false;
+	if (map.find(eventName) == map.end()) {
+		return false;
+	}
 	if (playing.find(eventGroup) != playing.end()) {
 		if (force) stop(eventGroup);
 		else return true;
 	}
 	int audioid=cocos2df::experimental::AudioEngine::play2d(map[eventName]);
-	if (audioid == -1) return false;
+	if (audioid == -1) {
+		LOGE("%s play failed", eventName.c_str());
+		return false;
+	}
 	playing[eventGroup] = audioid;
 	cocos2df::experimental::AudioEngine::setFinishCallback(audioid, [=](int aid,std::string path) {
 		playing.erase(eventGroup);

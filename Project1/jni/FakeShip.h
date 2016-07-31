@@ -40,4 +40,5 @@ public:
 	bool onRepair();
 	bool onFormation();
 	bool onChange(int fid, int pos);
+	bool onLive2dTouch(const char* name);
 };

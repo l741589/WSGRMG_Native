@@ -39,7 +39,7 @@ HookTask*doHook(char*func, void*pf, void*pf_s);
 #define HEQ(func,...) _HE(false,func,__VA_ARGS__)
 #define _HE(doLog,func, ... )								\
 	_super(HT##func ->fd,F##func, __VA_ARGS__ );			\
-	if (doLog) LOGE("%s#%ld",#func,C##func);					\
+	if (doLog) LOGE("%s#%ld",#func,C##func);				\
 	--C##func;												\
 }
 

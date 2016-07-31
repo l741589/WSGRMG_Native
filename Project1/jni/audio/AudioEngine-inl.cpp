@@ -49,7 +49,7 @@ using namespace cocos2df;
 using namespace cocos2df::experimental;
 
 #define CCLOG LOGE
-#define ERRORLOG LOGE
+#define ERRORLOG LOGER
 
 #define DELAY_TIME_TO_REMOVE 0.5f
 
@@ -271,7 +271,7 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
 		//LOGE("player init end");
         if (!initPlayer){
             _audioPlayers.erase(currentAudioID);
-			LOGE("%s,%d message:create player for %s fail", __func__, __LINE__, filePath.c_str());
+			LOGER("%s,%d message:create player for %s fail", __func__, __LINE__, filePath.c_str());
             break;
         }
         //cocosplay::notifyFileLoaded(fullPath);
@@ -346,7 +346,7 @@ void AudioEngineImpl::setVolume(int audioID,float volume)
     }
     auto result = (*player._fdPlayerVolume)->SetVolumeLevel(player._fdPlayerVolume, dbVolume);
     if(SL_RESULT_SUCCESS != result){
-		LOGE("%s error:%u", __func__, result);
+		LOGER("%s error:%u", __func__, result);
     }
 }
 
@@ -366,7 +366,7 @@ void AudioEngineImpl::pause(int audioID)
     auto& player = _audioPlayers[audioID];
     auto result = (*player._fdPlayerPlay)->SetPlayState(player._fdPlayerPlay, SL_PLAYSTATE_PAUSED);
     if(SL_RESULT_SUCCESS != result){
-        LOGE("%s error:%u",__func__, result);
+        LOGER("%s error:%u",__func__, result);
     }
 }
 
@@ -375,7 +375,7 @@ void AudioEngineImpl::resume(int audioID)
     auto& player = _audioPlayers[audioID];
     auto result = (*player._fdPlayerPlay)->SetPlayState(player._fdPlayerPlay, SL_PLAYSTATE_PLAYING);
     if(SL_RESULT_SUCCESS != result){
-		LOGE("%s error:%u", __func__, result);
+		LOGER("%s error:%u", __func__, result);
     }
 }
 
@@ -384,7 +384,7 @@ void AudioEngineImpl::stop(int audioID)
     auto& player = _audioPlayers[audioID];
     auto result = (*player._fdPlayerPlay)->SetPlayState(player._fdPlayerPlay, SL_PLAYSTATE_STOPPED);
     if(SL_RESULT_SUCCESS != result){
-		LOGE("%s error:%u", __func__, result);
+		LOGER("%s error:%u", __func__, result);
     }
 
     /*If destroy openSL object immediately,it may cause dead lock.

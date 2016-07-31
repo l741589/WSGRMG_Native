@@ -199,3 +199,11 @@ bool FackShip::onChange(int fid, int pos) {
 	return PLAY("%ld.change",cid);
 }
 
+bool FackShip::onLive2dTouch(const char* name) {
+	std::string group = format("%ld.touch", cid);
+	std::string type = std::string(".l2d.") + name;
+	if (onTouchWithType(group.c_str(), type.c_str())) return true;
+	if (onTouchWithType(group.c_str(), ".l2d")) return true;
+	return onTouch();
+}
+

@@ -124,11 +124,12 @@ JNIEXPORT void JNICALL Java_com_bigzhao_jianrmagicbox_CppInterface_init(JNIEnv *
 		_ZN7cocos2d9FileUtils13addSearchPathERKSsb(cocos2d::FileUtils::getInstance(), createString(ext_files + "/res/audio"), true);
 		_ZN7cocos2d9FileUtils13addSearchPathERKSsb(cocos2d::FileUtils::getInstance(), createString(ext_files + "/res/ccbResources"), true);
 		_ZN7cocos2d9FileUtils13addSearchPathERKSsb(cocos2d::FileUtils::getInstance(), createString(ext_files + "/res"), true);				
-		auto*fu = cocos2d::FileUtils::getInstance();
+		/*		auto*fu = cocos2d::FileUtils::getInstance();
+
 #define TYPE std::string
 		for (TYPE*i = *(TYPE**)(fu + 8); i < *(TYPE**)(fu + 9); ++i) {
 			LOGE("path:%s", i->c_str());
-		}
+		}*/
 		//LOGE("get paths");
 		//LOGE("path:%d,%d,%d", sizeof(std::string), sizeof(std::vector<int>), sizeof(std::vector<std::string>));
 		//const std::vector<std::string>* paths=cocos2d::FileUtils::getInstance()->getSearchPaths();

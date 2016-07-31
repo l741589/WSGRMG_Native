@@ -41,6 +41,8 @@ Step currentStep;
 bool day = true;
 char tmpbuf[65536];
 int stepCounter = -1;
+bool inFriendHome = false;
+int friendFlagShip = 0;
 
 //Step
 HS(void, _ZN10FightScene10updateStepEv, void*t)
@@ -125,6 +127,9 @@ void GetPng(int cid,int skin, int type) {
 		|| C_ZN24PEventCombatPrepareLayer20ConfigFormationLayerEv > 0 || C_ZN21PVPCombatPrepareLayer20ConfigFormationLayerEv > 0) {
 		FackShip(cid, skin).onFormation();
 	}
+	if (inFriendHome) {
+		friendFlagShip = cid;
+	}
 }
 
 HS(int, _ZN9UIManager13getLNormalPngEii, int a1, int a2, int cid, int skin)
@@ -156,7 +161,6 @@ HER(_ZN9UIManager13getLBrokenPngEi, a1, a2, cid);
 HS(void, _ZN4Ship8castBuffEiiRSt6vectorIiSaIiEE, int a, int b, int c, int d)
 FackShip((Ship*)a,0).onBuff();
 HE(_ZN4Ship8castBuffEiiRSt6vectorIiSaIiEE,a,b,c,d);
-
 
 int torpedoStepCritic = -1;
 HS(int, _ZN4Ship13torpedoAttackERKSt4listIPS_SaIS1_EERK10AttackInfob, int*t, void* list, int b)
@@ -214,6 +218,47 @@ auto ship=UserManager::getInstance()->getIndexUserShip(sid);
 if (ship != nullptr) FackShip(ship->cid, 0).onChange(fid,pos);
 HER(_ZN10NetManager14SendChangeBoatEiii, t, fid, sid,pos);
 
+HS(int, _ZN9LAppModel11startMotionEPKcii, void*t, const char*name,int index, int eventType)
+	if (index == 0) {
+		if (inFriendHome) {
+			if (friendFlagShip==0) LOGER("No FlagShip")
+			else FackShip(friendFlagShip, 0).onLive2dTouch(name);
+		} else {
+			auto ship = UserManager::getInstance()->getFlagShip();
+			if (ship == NULL) LOGER("No FlagShip")
+			else FackShip(ship->cid, 0).onLive2dTouch(name);
+		}
+	}
+HER(_ZN9LAppModel11startMotionEPKcii, t, name, index, eventType);
+
+HS(int, _ZN9LAppModel13setExpressionEPKc, void*t, const char*s)
+LOGE("L2DExpression: %s", s);
+HER(_ZN9LAppModel13setExpressionEPKc,t,s);
+
+
+HS(int, _ZN15UserDetailLayer12onTouchBeganEPN7cocos2d5TouchEPNS0_5EventE, void*t, cocos2d::Touch*touch, void*ev)
+auto const& loc = touch->getLocation();
+auto const& size = cocos2d::Director::getInstance()->getWinSize();
+if (loc.x > size.width * 2 / 3) {
+	if (inFriendHome) {
+		if (friendFlagShip == 0) LOGER("No FlagShip")
+		else FackShip(friendFlagShip, 0).onTouch();
+	} else {
+		auto ship = UserManager::getInstance()->getFlagShip();
+		if (ship == NULL) LOGER("No FlagShip")
+		else  FackShip(ship->cid, 0).onTouch();
+	}
+}
+HER(_ZN15UserDetailLayer12onTouchBeganEPN7cocos2d5TouchEPNS0_5EventE, t, touch,ev);
+
+HS(int, _ZN15UserDetailLayerC2Ev, void*t)
+inFriendHome = false;
+HER(_ZN15UserDetailLayerC2Ev, t);
+
+HS(int, _ZN15UserDetailLayer11InitVisitorEb, void*t, bool b)
+inFriendHome = true;
+LOGE("InitVisitor:%d", b);
+HER(_ZN15UserDetailLayer11InitVisitorEb, t, b);
 
 //////////////////////////////////////////////////
 double lastTime = 0;

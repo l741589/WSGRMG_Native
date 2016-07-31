@@ -43,6 +43,16 @@ namespace cocos2d{
 
 	extern "C" void*_ZN7cocos2d16FileUtilsAndroid12assetmanagerE;
 	*/
+	class Vec2 {
+	public:
+		float x;
+		float y;
+	};
+	class Size {
+	public:
+		float width;
+		float height;
+	};
 	class Node {
 	public:
 		virtual void addChild(Node * child, int localZOrder);
@@ -56,6 +66,7 @@ namespace cocos2d{
 		static Director* getInstance();
 		void* getTextureCache() const;
 		void replaceScene(Scene *scene);
+		const Size& getWinSize() const;
 	};
 
 	class FileUtils {
@@ -91,8 +102,11 @@ namespace cocos2d{
 	namespace utils {
 		double gettime();
 	};
-
-
+	
+	class Touch {
+	public:
+		Vec2 getLocation() const;
+	};
 
 }
 
@@ -132,6 +146,15 @@ public:
 	FleetInfo getIndexFleetInfo(int);
 	UserShipData*getIndexUserShip(int);
 	int getServerTime();
+
+	static UserShipData*getFlagShip() {
+		auto i = getInstance();
+		if (i == nullptr) return nullptr;
+		auto const& fi = i->getIndexFleetInfo(1);
+		if (fi.shipStartPtr == nullptr || fi.shipStartPtr >= fi.shipEndPtr) return nullptr;
+		auto id = *fi.shipStartPtr;
+		return i->getIndexUserShip(id);
+	}
 };
 class PveManager {
 public:
