@@ -117,10 +117,32 @@ if (ret != 0) {
 return ret;
 }*/
 
-HS(int, _ZN10PveManager22onGetWarResultResponseEPN7cocos2d7network12HttpResponseE, void*t, void*r)
-HER(_ZN10PveManager22onGetWarResultResponseEPN7cocos2d7network12HttpResponseE, t, r);
-HS(int, _ZN10PveManager18onDealNodeResponseEPN7cocos2d7network12HttpResponseE, void*t, void*r)
-HER(_ZN10PveManager18onDealNodeResponseEPN7cocos2d7network12HttpResponseE, t, r);
+
+#define _HACK(Manager,Action,ActionLen) \
+HS(int, _ZN##Manager####ActionLen####Action##EPN7cocos2d7network12HttpResponseE, void*t, void*r)	\
+HER( _ZN##Manager####ActionLen####Action##EPN7cocos2d7network12HttpResponseE, t, r)
+#define _LOG(Manager,Action,ActionLen,ActionStr) if (C_ZN##Manager####ActionLen####Action##EPN7cocos2d7network12HttpResponseE) logGameInfo(url,#ActionStr,r)
+
+#define HACKPVE(Action,ActionLen) _HACK(10PveManager,on##Action##Response,ActionLen)
+#define LOGPVE(Action,ActionLen) _LOG(10PveManager,on##Action##Response,ActionLen,Action)
+
+HACKPVE(GetWarResult, 22);
+HACKPVE(DealNode, 18);
+HACKPVE(Challenge, 19);
+HACKPVE(SkipWar, 17);
+HACKPVE(Spy, 13);
+HACKPVE(NextNode, 18);
+
+#define HACKUSER(Action,ActionLen) _HACK(11UserManager,onGetDock##Action,ActionLen)
+#define LOGUSER(Action,ActionLen) _LOG(11UserManager,onGetDock##Action,ActionLen,Action)
+
+HACKUSER(Boat, 13);
+HACKUSER(Equip, 14);
+HACKUSER(BuildBoat, 18);
+HACKUSER(BuildEquip, 19);
+HACKUSER(InstantBuildBoat, 25);
+HACKUSER(InstantBuildEquip, 26);
+
 
 const char*getRequestUrl(void*response) {
 	char*res = (char*)response;
@@ -144,31 +166,26 @@ void logGameInfo(const char*url,const char*type, void*doc) {
 }
 
 
+
 HS(int, _ZN10NetManager21ParseDataFromResponseEPN7cocos2d7network12HttpResponseERN9rapidjson15GenericDocumentINS4_4UTF8IcEENS4_19MemoryPoolAllocatorINS4_12CrtAllocatorEEES9_EE, void*t, void*res, void*r)
 HSUPER(true, _ZN10NetManager21ParseDataFromResponseEPN7cocos2d7network12HttpResponseERN9rapidjson15GenericDocumentINS4_4UTF8IcEENS4_19MemoryPoolAllocatorINS4_12CrtAllocatorEEES9_EE, t, res, r);
 if (userInfo != nullptr) {
 	const char*url = getRequestUrl(res);
-	//LOGE("RESPONSE:%s", url);
-	if (C_ZN10PveManager22onGetWarResultResponseEPN7cocos2d7network12HttpResponseE) {
-		logGameInfo(url,"GetWarResult", r);
-	} else if (C_ZN10PveManager18onDealNodeResponseEPN7cocos2d7network12HttpResponseE) {
-		logGameInfo(url,"DealNode", r);
-	}
-	
-	/*
-	Document document;
+	LOGE("RESPONSE:%s", url);
 
-	Document::AllocatorType& allocator = document.GetAllocator();
-	Value contact(kArrayType);
-	Value contact2(kArrayType);
-	Value root(kArrayType);
-	contact.PushBack("Lu//a\"", allocator).PushBack("Mio", allocator).PushBack("甲", allocator);
-	contact2.PushBack("Lu// a", allocator).PushBack("Mio", allocator).PushBack("乙", allocator);
-	root.PushBack(contact, allocator);
-	root.PushBack(contact2, allocator);*/
+	LOGPVE(GetWarResult,22);
+	LOGPVE(DealNode,18);
+	LOGPVE(Spy, 13);
+	LOGPVE(NextNode, 18);
+	LOGPVE(Challenge, 19);
+	LOGPVE(SkipWar, 17);
 
-	
-	//LOGER("%d,%s", buffer.GetSize(), s);
+	LOGUSER(Boat, 13);
+	LOGUSER(Equip, 14);
+	LOGUSER(BuildBoat, 18);
+	LOGUSER(BuildEquip, 19);
+	LOGUSER(InstantBuildBoat, 25);
+	LOGUSER(InstantBuildEquip, 26);	
 }
 return ret;
 }
