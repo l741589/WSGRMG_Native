@@ -10,3 +10,5 @@ int getShipInFleet(int fleetId, int index);
 bool streq(const char*a, const char*b);
 bool strew(const char*a, const char*b);
 bool strsw(const char*a, const char*b);
+std::string*createString(const char*str);
+std::string*createString(const std::string&str);

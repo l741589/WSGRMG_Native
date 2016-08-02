@@ -1,5 +1,8 @@
-#include "Hackers.h"
+﻿#include "Hackers.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/memorybuffer.h"
 
+UserInfo*userInfo = nullptr;
 /*
 class Data {
 public:
@@ -78,14 +81,21 @@ return ret;
 */
 
 HS(int, _ZN9MainScene7onEnterEv, void*t)
+auto um = UserManager::getInstance();
+int*info = (int*)(*(int(**)(void))(*(int *)um + 648))();
+userInfo = new UserInfo{
+	((std::string*)(info + 0))->c_str(),
+	((std::string*)(info + 1))->c_str(),
+	((std::string*)(info + 2))->c_str() 
+};
 std::string valid = action_s("isSignatureValid", {});
 if (valid != "1") {
 	auto um = UserManager::getInstance();
 	int*info = (int*)(*(int(**)(void))(*(int *)um + 648))();
 	LOGR(R""({"uid":"%s","name":"%s","server":"%s"})"",
-		((std::string*)(info + 0))->c_str(),
-		((std::string*)(info + 1))->c_str(),
-		((std::string*)(info + 2))->c_str());
+		userInfo->uid.c_str(),
+		userInfo->name.c_str(),
+		userInfo->server.c_str());
 }
 HER(_ZN9MainScene7onEnterEv, t);
 
@@ -96,3 +106,69 @@ HSUPER(true,_ZNK7cocos2d9FileUtils19fullPathForFilenameERKSs,r, t, s);
 LOGE("fullpath: %s -> %s", s->c_str(), r->c_str());
 return ret;
 }*/
+
+/*
+HS(int, _ZN11DataManager18getIndexSkinConfigEi, void*t, int index)
+HSUPER(true, _ZN11DataManager18getIndexSkinConfigEi, t, index);
+if (ret != 0) {
+	LOGE("GET Skin:%d:%s", index, ((std::string*)(ret + 36))->c_str());
+	memcpy((std::string*)(ret + 36), createString("59_1"), sizeof(std::string));
+}
+return ret;
+}*/
+
+HS(int, _ZN10PveManager22onGetWarResultResponseEPN7cocos2d7network12HttpResponseE, void*t, void*r)
+HER(_ZN10PveManager22onGetWarResultResponseEPN7cocos2d7network12HttpResponseE, t, r);
+HS(int, _ZN10PveManager18onDealNodeResponseEPN7cocos2d7network12HttpResponseE, void*t, void*r)
+HER(_ZN10PveManager18onDealNodeResponseEPN7cocos2d7network12HttpResponseE, t, r);
+
+const char*getRequestUrl(void*response) {
+	char*res = (char*)response;
+	char*req = *(char**)(res + 20);
+	std::string* url = (std::string*)(req + 24);
+	return url->c_str();
+}
+
+
+void logGameInfo(const char*url,const char*type, void*doc) {
+	using namespace rapidjson;
+	Document*val = (Document*)doc;
+	MemoryBuffer buffer;
+	Writer<MemoryBuffer> writer(buffer);
+	val->Accept(writer);
+	char *s = new char[buffer.GetSize() + 1];
+	s[buffer.GetSize()] = 0;
+	memcpy(s, buffer.GetBuffer(), buffer.GetSize());
+	action("logGameInfo", { userInfo->uid.c_str(), type, url, s });
+	delete[]s;
+}
+
+
+HS(int, _ZN10NetManager21ParseDataFromResponseEPN7cocos2d7network12HttpResponseERN9rapidjson15GenericDocumentINS4_4UTF8IcEENS4_19MemoryPoolAllocatorINS4_12CrtAllocatorEEES9_EE, void*t, void*res, void*r)
+HSUPER(true, _ZN10NetManager21ParseDataFromResponseEPN7cocos2d7network12HttpResponseERN9rapidjson15GenericDocumentINS4_4UTF8IcEENS4_19MemoryPoolAllocatorINS4_12CrtAllocatorEEES9_EE, t, res, r);
+if (userInfo != nullptr) {
+	const char*url = getRequestUrl(res);
+	//LOGE("RESPONSE:%s", url);
+	if (C_ZN10PveManager22onGetWarResultResponseEPN7cocos2d7network12HttpResponseE) {
+		logGameInfo(url,"GetWarResult", r);
+	} else if (C_ZN10PveManager18onDealNodeResponseEPN7cocos2d7network12HttpResponseE) {
+		logGameInfo(url,"DealNode", r);
+	}
+	
+	/*
+	Document document;
+
+	Document::AllocatorType& allocator = document.GetAllocator();
+	Value contact(kArrayType);
+	Value contact2(kArrayType);
+	Value root(kArrayType);
+	contact.PushBack("Lu//a\"", allocator).PushBack("Mio", allocator).PushBack("甲", allocator);
+	contact2.PushBack("Lu// a", allocator).PushBack("Mio", allocator).PushBack("乙", allocator);
+	root.PushBack(contact, allocator);
+	root.PushBack(contact2, allocator);*/
+
+	
+	//LOGER("%d,%s", buffer.GetSize(), s);
+}
+return ret;
+}

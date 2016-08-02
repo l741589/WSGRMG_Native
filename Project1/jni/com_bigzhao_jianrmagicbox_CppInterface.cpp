@@ -62,15 +62,16 @@ std::string action_s(const char*action, const std::list<const char*>& args) {
 	return s;
 }
 
-char logRemoteBuffer[65536];
-char logRemoteBuffer2[65536];
+#define LOGREMOTELEN 16777216
+char logRemoteBuffer[LOGREMOTELEN];
+char logRemoteBuffer2[LOGREMOTELEN];
 void logRemote(const char*file,int line,const char*fmt, ...) {
 	va_list argptr;
 	int cnt;
 	va_start(argptr, fmt);
-	cnt = vsnprintf(logRemoteBuffer, 65536, fmt, argptr);
+	cnt = vsnprintf(logRemoteBuffer, LOGREMOTELEN, fmt, argptr);
 	va_end(argptr);
-	snprintf(logRemoteBuffer2, 65536, "%s.%d: %s", file, line, logRemoteBuffer);
+	snprintf(logRemoteBuffer2, LOGREMOTELEN, "%s.%d: %s", file, line, logRemoteBuffer);
 	action("logError", { logRemoteBuffer2 });
 }
 
