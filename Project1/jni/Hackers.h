@@ -7,6 +7,8 @@ public:
 	std::string uid;
 	std::string name;
 	std::string server;
+
+	std::string toJson();
 };
 
 extern UserInfo*userInfo;

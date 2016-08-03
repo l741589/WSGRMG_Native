@@ -90,12 +90,7 @@ userInfo = new UserInfo{
 };
 std::string valid = action_s("isSignatureValid", {});
 if (valid != "1") {
-	auto um = UserManager::getInstance();
-	int*info = (int*)(*(int(**)(void))(*(int *)um + 648))();
-	LOGR(R""({"uid":"%s","name":"%s","server":"%s"})"",
-		userInfo->uid.c_str(),
-		userInfo->name.c_str(),
-		userInfo->server.c_str());
+	LOGR(userInfo->toJson().c_str());
 }
 HER(_ZN9MainScene7onEnterEv, t);
 
@@ -161,7 +156,7 @@ void logGameInfo(const char*url,const char*type, void*doc) {
 	char *s = new char[buffer.GetSize() + 1];
 	s[buffer.GetSize()] = 0;
 	memcpy(s, buffer.GetBuffer(), buffer.GetSize());
-	action("logGameInfo", { userInfo->uid.c_str(), type, url, s });
+	action("logGameInfo", { userInfo->toJson().c_str(), type, url, s });
 	delete[]s;
 }
 
@@ -188,4 +183,11 @@ if (userInfo != nullptr) {
 	LOGUSER(InstantBuildEquip, 26);	
 }
 return ret;
+}
+
+std::string UserInfo::toJson() {
+	return format(R""({"uid":"%s","name":"%s","server":"%s"})"",
+		userInfo->uid.c_str(),
+		userInfo->name.c_str(),
+		userInfo->server.c_str());
 }
