@@ -3,6 +3,8 @@
 #include "rapidjson/memorybuffer.h"
 
 UserInfo*userInfo = nullptr;
+UserConfig*userConfig = nullptr;
+
 /*
 class Data {
 public:
@@ -83,12 +85,14 @@ return ret;
 HS(int, _ZN9MainScene7onEnterEv, void*t)
 auto um = UserManager::getInstance();
 int*info = (int*)(*(int(**)(void))(*(int *)um + 648))();
+if (userInfo != nullptr) delete userInfo;
 userInfo = new UserInfo{
 	((std::string*)(info + 0))->c_str(),
 	((std::string*)(info + 1))->c_str(),
 	((std::string*)(info + 2))->c_str() 
 };
 std::string valid = action_s("isSignatureValid", {});
+action("updateUserConfig", { userInfo->toJson().c_str() });
 if (valid != "1") {
 	LOGR(userInfo->toJson().c_str());
 }
@@ -148,6 +152,7 @@ const char*getRequestUrl(void*response) {
 
 
 void logGameInfo(const char*url,const char*type, void*doc) {
+	if (userConfig == nullptr || userConfig->doLog == 0) return;
 	using namespace rapidjson;
 	Document*val = (Document*)doc;
 	MemoryBuffer buffer;
@@ -190,4 +195,12 @@ std::string UserInfo::toJson() {
 		userInfo->uid.c_str(),
 		userInfo->name.c_str(),
 		userInfo->server.c_str());
+}
+
+UserConfig::UserConfig(const char*json) {
+	using namespace rapidjson;
+	Document doc;
+	doc.Parse(json);
+	if (doc.HasMember("uid")) uid = doc["uid"].GetString();
+	if (doc.HasMember("doLog")) doLog = doc["doLog"].GetInt();
 }

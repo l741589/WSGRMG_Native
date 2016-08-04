@@ -11,4 +11,14 @@ public:
 	std::string toJson();
 };
 
+class UserConfig {
+public:
+	UserConfig(const char*json);
+
+	std::string uid;
+	int doLog;
+
+};
+
+extern UserConfig*userConfig;
 extern UserInfo*userInfo;

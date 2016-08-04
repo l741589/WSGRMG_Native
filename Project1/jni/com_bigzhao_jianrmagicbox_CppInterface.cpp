@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "Listeners.h"
 #include "SoundManager.h"
+#include "Hackers.h"
 
 JavaVM*jvm;
 jclass CppInterface;
@@ -76,8 +77,21 @@ void logRemote(const char*file,int line,const char*fmt, ...) {
 }
 
 JNIEXPORT jobject JNICALL Java_com_bigzhao_jianrmagicbox_CppInterface_nativeAction
-(JNIEnv *, jclass, jint action, jobjectArray) {
-	if (action == 0) LOGE("native action test");
+(JNIEnv *env, jclass, jint action, jobjectArray arr) {
+	LOGE("NativeAction:%d", action);
+	switch (action) {
+	case 0:LOGE("native action test"); return NULL;
+	case 1001:{
+		if (userConfig != nullptr) delete userConfig;
+		jstring s = (jstring)env->GetObjectArrayElement(arr, 0);
+		if (s == NULL) return NULL;
+		const char*chs = env->GetStringUTFChars(s, NULL);
+		userConfig = new UserConfig(chs);
+		env->ReleaseStringUTFChars(s, chs);
+		LOGE("updateUserConfig:%s,%d", userConfig->uid.c_str(), userConfig->doLog);
+		return NULL;
+	}
+	}
 	return NULL;
 }
 
@@ -115,7 +129,6 @@ JNIEXPORT void JNICALL Java_com_bigzhao_jianrmagicbox_CppInterface_init(JNIEnv *
 	registerUpdateFunc(0x6A74, [](double delta) {
 		
 		c += delta;
-		LOGE("path time: %g",c);
 		if (c < 0.5) return;
 		unregisterUpdateFunc(0x6A74);
 		std::string ext_files=action_s("getFilePath", {"ext_files:."});
@@ -125,19 +138,6 @@ JNIEXPORT void JNICALL Java_com_bigzhao_jianrmagicbox_CppInterface_init(JNIEnv *
 		_ZN7cocos2d9FileUtils13addSearchPathERKSsb(cocos2d::FileUtils::getInstance(), createString(ext_files + "/res/audio"), true);
 		_ZN7cocos2d9FileUtils13addSearchPathERKSsb(cocos2d::FileUtils::getInstance(), createString(ext_files + "/res/ccbResources"), true);
 		_ZN7cocos2d9FileUtils13addSearchPathERKSsb(cocos2d::FileUtils::getInstance(), createString(ext_files + "/res"), true);				
-		/*		auto*fu = cocos2d::FileUtils::getInstance();
-
-#define TYPE std::string
-		for (TYPE*i = *(TYPE**)(fu + 8); i < *(TYPE**)(fu + 9); ++i) {
-			LOGE("path:%s", i->c_str());
-		}*/
-		//LOGE("get paths");
-		//LOGE("path:%d,%d,%d", sizeof(std::string), sizeof(std::vector<int>), sizeof(std::vector<std::string>));
-		//const std::vector<std::string>* paths=cocos2d::FileUtils::getInstance()->getSearchPaths();
-		//LOGE("paths:%x,%x", *(int*)((int)paths + 4), *(int*)((int)paths + 8));
-		//LOGE("paths:%s", ((std::string*)(*(int*)((int)paths + 4)+sizeof(std::string)))->c_str());
-		//auto a1 = (int)paths;
-		//LOGE("paths size:%d", *(int *)(a1 + 12) - *(int *)(a1 + 4) + 8 * (*(int *)(a1 + 8) - *(int *)a1));
 	});
 	
 	//LOGR("test1 %s%d", "test", 2);
