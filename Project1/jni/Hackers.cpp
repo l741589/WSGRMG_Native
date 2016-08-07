@@ -91,12 +91,16 @@ userInfo = new UserInfo{
 	((std::string*)(info + 1))->c_str(),
 	((std::string*)(info + 2))->c_str() 
 };
+std::string jsonString = userInfo->toJson();
+const char*json = jsonString.c_str();
+action("updateUserConfig", { json });
 std::string valid = action_s("isSignatureValid", {});
-action("updateUserConfig", { userInfo->toJson().c_str() });
 if (valid != "1") {
-	LOGR(userInfo->toJson().c_str());
+	LOGR(json);
 }
 HER(_ZN9MainScene7onEnterEv, t);
+
+
 
 /*
 

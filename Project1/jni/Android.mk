@@ -30,6 +30,7 @@ LOCAL_SRC_FILES := com_bigzhao_jianrmagicbox_CppInterface.cpp \
 	audio\AudioEngine-inl.cpp \
 	adbi\base.c\
 	adbi\util.c\
-	adbi\hook.c
+	adbi\hook.c\
+	ice\IceKey.cpp
 
 include $(BUILD_SHARED_LIBRARY)

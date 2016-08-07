@@ -3,6 +3,7 @@
 #include <io.h>
 #include <string.h>
 #include <ctype.h>
+#include "ice/IceKey.h"
 
 char __buffer[65536];
 const char* format(const char*fmt, ...) {
@@ -85,4 +86,51 @@ bool strew(const char*a, const char*b) {
 bool strsw(const char*a, const char*b) {
 	for (; *a&&*b; ++a, ++b) if (*a != *b) return false;
 	return true;
+}
+
+typedef void (IceKey::*pf_converter)(const unsigned char *, unsigned char *) const;
+void fixSize(int*size) {
+	if (*size % 8 != 0) {
+		*size = 8 * (*size / 8 + 1);
+	}
+}
+
+bool convert(unsigned char*dest, const unsigned char*src, int*len,int maxLen,pf_converter converter) {
+	fixSize(len);
+	if (*len > maxLen) return false;
+	IceKey ice(0);
+	ice.set((unsigned char*)"W56RM6!N");
+	for (auto i = 0; i < *len / 8; ++i)
+		(ice.*converter)(src + 8 * i, dest + 8 * i);
+	return true;
+}
+
+bool encrypt(void*dest, const void*src, int*len,int maxLen) {
+	return convert((unsigned char*)dest, (unsigned char*)src, len, maxLen, &IceKey::encrypt);
+}
+
+bool decrypt(void*dest, const void*src, int*len, int maxLen) {
+	return convert((unsigned char*)dest, (unsigned char*)src, len, maxLen, &IceKey::decrypt);
+}
+
+
+int fsize(FILE*f) {
+	fseek(f, 0, SEEK_END);
+	int size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	return size;
+}
+
+int freadAll(void*buf, const char*filename) {
+	FILE*f = fopen(filename, "rb");
+	int size = fsize(f);
+	fread(buf, size, 1, f);
+	fclose(f);
+	return size;
+}
+
+void fwriteAll(void* buf, const char*filelname, int size) {
+	FILE*f = fopen(filelname, "wb");
+	fwrite(filelname, size, 1, f);
+	fclose(f);
 }

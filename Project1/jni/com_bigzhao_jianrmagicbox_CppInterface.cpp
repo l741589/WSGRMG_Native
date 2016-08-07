@@ -9,7 +9,7 @@ JavaVM*jvm;
 jclass CppInterface;
 jclass String;
 jmethodID CppInterface_action;
-
+bool initialized = false;
 #define JNIENV
 
 static void my_log(char *msg) {
@@ -76,11 +76,12 @@ void logRemote(const char*file,int line,const char*fmt, ...) {
 	action("logError", { logRemoteBuffer2 });
 }
 
+
 JNIEXPORT jobject JNICALL Java_com_bigzhao_jianrmagicbox_CppInterface_nativeAction
 (JNIEnv *env, jclass, jint action, jobjectArray arr) {
 	LOGE("NativeAction:%d", action);
 	switch (action) {
-	case 0:LOGE("native action test"); return NULL;
+	case 0:initialized = true; LOGE("native action test"); return NULL;
 	case 1001:{
 		if (userConfig != nullptr) delete userConfig;
 		jstring s = (jstring)env->GetObjectArrayElement(arr, 0);
@@ -111,6 +112,7 @@ extern "C" int _ZN7cocos2d9FileUtils13addSearchPathERKSsb(cocos2d::FileUtils*t,s
 double c = 0;
 
 JNIEXPORT void JNICALL Java_com_bigzhao_jianrmagicbox_CppInterface_init(JNIEnv *env, jclass cls) {
+	if (initialized) return;
     LOGE("init");
 	env->GetJavaVM(&jvm);
     set_logfunction(my_log);
